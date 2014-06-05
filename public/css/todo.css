@@ -1,0 +1,27 @@
+h1 {
+	color: #036F73;
+	text-decoration: underline;
+      }
+
+body { 
+	background-color: #FEF2D8;
+	font-family: "Times New Roman", Serif; 
+	}
+
+ul {
+	list-style: square;
+	font-size: 25px;
+/*	background-color: #528FA8;*/
+}
+
+a{
+ 	color:red;
+}
+
+a:hover {
+ color:blue;
+}
+
+a:active {
+ color:yellow;
+}
