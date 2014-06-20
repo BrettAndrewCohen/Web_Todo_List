@@ -1,32 +1,14 @@
 <?php
 
-$filename = 'list.txt';
-$newitems = getfile($filename);
+require_once('classes/filestore.php');
+// $filename = 'list.txt';
+// $newitems = getfile($filename);
+// Using the class filestore here
+
+$store = new Filestore('list.txt');
+$newitems = $store->read();
+var_dump($store->is_csv);
 $errorMessage = '';
-
-function savefile($savefilepath, $array) {
-    $filename = $savefilepath;
-    if (is_writable($filename)) {
-        $handle = fopen($filename, 'w');
-        foreach($array as $items) {
-            fwrite($handle, PHP_EOL . $items);
-        }
-        fclose($handle); 
-    }   
-}
-
-function getfile($filename) {
-    $contents = [];
-    if (is_readable($filename) && filesize($filename) > 0){
-        $handle = fopen($filename, 'r');
-        $bytes = filesize($filename);
-        $contents = trim(fread($handle, $bytes));
-        fclose($handle);
-        $contents = explode("\n", $contents);
-
-    }
-    return $contents;
-} 
 
 // Verify there were uploaded files and no errors
 if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
@@ -42,9 +24,14 @@ if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
         // Move the file from the temp location to our uploads directory
         move_uploaded_file($_FILES['file1']['tmp_name'], $saved_filename);
 
-        $textfile = $saved_filename;
-        $newfile = getfile($textfile);
-        $newitems = array_merge($newfile, $newitems);
+        // $textfile = $saved_filename;
+        // $newfile = getfile($textfile);
+        // $newitems = array_merge($newfile, $newitems);
+        // refactored this code to use the Filestore class 
+
+        $upload = new Filestore($saved_filename);
+        $newTextFile = $upload->read();
+        $newitems = array_merge($newitems, $newTextFile);
 
     } else {
         $errorMessage = "Not a valid file. Please use only a plain text file";
@@ -63,8 +50,9 @@ if (!empty($_POST['todoitem'])) {
     array_push($newitems, htmlspecialchars(strip_tags($_POST['todoitem'])));
 }
 
-$savefilepath = 'list.txt';
-savefile($savefilepath, $newitems);
+// $savefilepath = 'list.txt';
+// savefile($savefilepath, $newitems);
+$store->write($newitems);
 
 ?>
 <!DOCTYPE html>
