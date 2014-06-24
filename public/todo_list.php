@@ -7,8 +7,9 @@ require_once('classes/filestore.php');
 
 $store = new Filestore('list.txt');
 $newitems = $store->read();
-var_dump($store->is_csv);
 $errorMessage = '';
+
+class InvalidInputException extends Exception { }
 
 // Verify there were uploaded files and no errors
 if (count($_FILES) > 0 && $_FILES['file1']['error'] == 0) {
@@ -46,10 +47,21 @@ if (!empty($_GET)) {
     // unset($newitems[$_GET['removeitem']]);
 }
 
-if (!empty($_POST['todoitem'])) {
-    array_push($newitems, htmlspecialchars(strip_tags($_POST['todoitem'])));
+try {
+    if (isset($_POST['todoitem'])) {
+        $stringLength = strlen(($_POST['todoitem']));
+        if ($stringLength == 0) {
+            throw new InvalidInputException('You must enter an item, YO!');
+        }
+        if ($stringLength >= 240) {
+            throw new InvalidInputException('Item cannot be longer than 240 characters');
+        } else {
+        array_push($newitems, htmlspecialchars(strip_tags($_POST['todoitem'])));
+        }
+    }
+} catch(InvalidInputException $e) {
+    $msg = $e->getMessage() . PHP_EOL;
 }
-
 // $savefilepath = 'list.txt';
 // savefile($savefilepath, $newitems);
 $store->write($newitems);
@@ -63,7 +75,9 @@ $store->write($newitems);
     <link rel="stylesheet" href="/css/todo.css">
 </head>
 <body>
-
+<? if (isset($msg)) : ?>  
+    <?= "<p>{$msg}</p>";?>
+<? endif; ?>
 <h1>Todo List</h1>
 
 <? if (!empty($errorMessage)) : ?>  
