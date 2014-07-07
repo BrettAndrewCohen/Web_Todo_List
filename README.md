@@ -1,1 +1,1 @@
-This is my Todo list I build using PHP. 
+This is my Todo list I built using PHP. 
